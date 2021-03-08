@@ -86,6 +86,8 @@ class LRUCache
     end
   end
 
+  def comandoGets()
+
   
   
 end
