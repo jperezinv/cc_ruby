@@ -1,8 +1,12 @@
 require 'socket' 
 
-socket = TCPSocket.new('localhost', 2000) 
+socket = TCPSocket.new("127.0.0.1", 2000) 
+long = 1000000000
+msg = socket.recv(long)
+puts("El mensaje enviado por el servidor: #{msg}\n\n")
 
-socket.write("hola")
-puts socket.gets()
+puts("ingrese un mensaje que quiera mandar al servidor: ")
+aux = gets.chomp()
+socket.puts(aux)
   
 socket.close
