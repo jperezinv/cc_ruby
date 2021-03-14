@@ -4,7 +4,7 @@ class MData
     def initialize(comandos)
         @key = comandos[0]
         @flag = comandos[1]
-        @exp_time = comandos[2]
+        @exp_time = Time.now + comandos[2].to_i
         @bytes = comandos[3]
         @chunk = comandos[4]
         @valorCas = nil

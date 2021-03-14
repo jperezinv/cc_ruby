@@ -39,6 +39,18 @@ class Cache
   def stringToArray(string) #para comando get y gets
     return string.split(" ")
   end
+
+  def controlTiempo(auxHash) #recibe la coleccion de llaves de el emulador memcached
+    
+    if auxHash.length > 0
+      auxHash.each do |llave, valor|
+        if Time.now >= auxHash[llave].exp_time
+          auxHash.delete(llave)
+        end
+      end
+    end
+  
+  end
   
 
   #COMANDOS
@@ -46,7 +58,7 @@ class Cache
   def comandoGet(llaves) #recibe una/s key/s y devuelve el/los valor/valores
   
     if @datos.empty?
-      return puts "el hash esta vacio"
+      return puts "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
     
     data = []
@@ -58,7 +70,7 @@ class Cache
           if k == llave
             borrado = @datos.delete(k) #borro y obtengo el valor borrado
             @datos[k] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
-            data[cont] = "VALUE #{k} => #{@datos[k].chunk}" #despues guardo el par key-valor en el array que retornaré al final 
+            data[cont] = "VALUE #{k} #{@datos[k].flag} #{@datos[k].bytes}\r\n #{@datos[k].chunk}"  #despues guardo el par key-valor en el array que retornaré al final 
             cont += 1
           end    
         end
@@ -68,7 +80,7 @@ class Cache
     if !data.empty? #si no esta vacio, devuelvo el array con los valores que tenga
       return puts data #el output sera VALUE seguido de la KEY y el VALOR
     else
-      return puts ("esta vacio") #si esta vacio entonces devuelvo nil
+      return puts ("NOT_STORED") #si esta vacio entonces devuelvo nil
     end
   
   end
@@ -81,18 +93,17 @@ class Cache
       @datos.delete(@datos.keys[0]) #si el tamaño es mayor al maxTamanio, borro el primer elemento del hash (el de menos relevancia)
     end
     
-    return puts("se ha seteado el valor #{data.chunk} a la key #{llave}") #output será STORED
+    return puts("STORED. se ha seteado el valor '#{data.chunk}' a la key '#{llave}'") #output será STORED
   
   end
 
   def comandoAdd (llave, valores)
     if @datos.key?(llave)
       auxArr = [llave]
-      return comandoGet(auxArr) #output será NOT_STORED
+      puts("NOT_STORED")
+      return comandoGet(auxArr) 
     end
-    puts("La llave antes de crear instancia es: #{valores[0]}")
     mData = MData.new(valores)
-    puts("La llave es #{mData.key}")
     comandoSet(llave,mData)
   end
 
@@ -100,8 +111,9 @@ class Cache
     if @datos.key?(llave)
       @datos[llave].bytes = valores[3]
       @datos[llave].chunk = valores[4]
+      return puts("STORED")
     else 
-      return puts "la llave ingresada no existe"
+      return puts "NOT_STORED"
     end
   end
 
@@ -117,7 +129,7 @@ class Cache
 
   def comandoGets(llaves)
     if @datos.empty?
-      return puts "el hash esta vacio"
+      return puts "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
     
     data = []
@@ -141,7 +153,7 @@ class Cache
     if !data.empty? #si no esta vacio, devuelvo el array con los valores que tenga
       return puts data #el output sera VALUE seguido de la KEY y el VALOR
     else
-      return puts ("esta vacio") #si esta vacio entonces devuelvo nil
+      return puts ("NOT_STORED") #si esta vacio entonces devuelvo nil
     end
   end
 

@@ -9,6 +9,13 @@ class MenuCache
         salir = false
 
         while !salir
+
+            Thread.new do
+                while true do
+                    cache.controlTiempo(cache.datos)
+                    sleep 1   #se ejecutará todo el tiempo mientras dure el emulador memcached, el control de tiempo, para ir borrando las keys expiradas.
+                end
+            end
             
             puts("ingrese comando: ")
             comandos = cache.stringToArray(gets.chomp())
@@ -24,7 +31,7 @@ class MenuCache
                     chunk = gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts("CLIENT_ERROR bad data chunk")
+                        puts "ERROR"
                         next
                     end
                     auxInfo.shift()
@@ -35,7 +42,7 @@ class MenuCache
                     chunk = gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts("CLIENT_ERROR bad data chunk")
+                        puts "ERROR"
                         next
                     end
                     auxInfo.shift()
@@ -45,7 +52,7 @@ class MenuCache
                     chunk = gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts("CLIENT_ERROR bad data chunk")
+                        puts "ERROR"
                         next
                     end
                     auxInfo.shift()
@@ -55,56 +62,56 @@ class MenuCache
                     chunk = gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts("CLIENT_ERROR bad data chunk")
+                        puts "ERROR"
                         next
                     end
                     auxInfo.shift()
                     if cache.datos.key?(auxInfo[0]) 
                         aux = cache.bytesCheck(auxInfo[0], auxInfo[4])
                         if (aux == nil)
-                            puts("CLIENT_ERROR bad data chunk")
+                            puts "ERROR"
                             next
                         end    
                         cache.comandoAppend(auxInfo[0], auxInfo)
                         puts ("#{cache.getHash}")
                     else
-                        puts("NOT_STORED. La llave ingresada no existe")
+                        puts "NOT_STORED. La llave ingresada no existe"
                     end
                     
                 when "prepend"
                     chunk = gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts("CLIENT_ERROR bad data chunk")
+                        puts "ERROR"
                         next
                     end
                     auxInfo.shift()
                     if cache.datos.key?(auxInfo[0]) 
                         aux = cache.bytesCheck(auxInfo[0], auxInfo[4])
                         if (aux == nil)
-                            puts("CLIENT_ERROR bad data chunk")
+                            puts "ERROR"
                             next
                         end    
                         cache.comandoPrepend(auxInfo[0], auxInfo)
                         puts ("#{cache.getHash}")
                     else
-                        puts("NOT_STORED. La llave ingresada no existe")
+                        puts "NOT_STORED. La llave ingresada no existe"
                     end                 
                     
                 when "get"
                     comandos.shift()
                     cache.comandoGet(comandos)
-                when "gets"# 
+                when "gets"
                     comandos.shift()
                     cache.comandoGets(comandos)
                 when "cas"
                     chunk = gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts("CLIENT_ERROR bad data chunk")
+                        puts "ERROR"
                         next
                     elsif (auxInfo.length != 7)
-                        puts("ERROR")
+                        puts "ERROR"
                         next
                     end
                     auxInfo.shift()
@@ -112,10 +119,10 @@ class MenuCache
                         cache.comandoCas(auxInfo[0], auxInfo)
                         puts ("#{cache.getHash}")
                     else
-                        puts("NOT_FOUND. La llave ingresada no existe.\n")
+                        puts "NOT_FOUND. La llave ingresada no existe.\n"
                     end
                 else
-                    puts("ERROR: COMANDO NO EXISTENTE. INTENTE NUEVAMENTE.\n\n") 
+                    puts("COMANDO INGRESADO NO EXISTENTE. INTENTE NUEVAMENTE.\n\n") 
                 
             end 
         end 
