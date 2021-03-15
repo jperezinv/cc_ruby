@@ -1,12 +1,19 @@
 require 'socket' 
 
-socket = TCPSocket.new("localhost", 2000) 
+socket = TCPSocket.new('localhost', 2000) 
 long = 1000000000
+$stdout.sync = true
 
-
-while msg = socket.recv(long) do
-    puts("#{msg}")
+while msg = socket.recv(long).chomp do 
+    if msg.empty?
+        socket.close
+        break
+    else
+        puts("#{msg}")
+        aux = gets.chomp
+        socket.puts(aux)
+    end
 end
 
-aux = gets.chomp()
-socket.puts(aux)
+
+

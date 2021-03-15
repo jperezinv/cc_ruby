@@ -44,7 +44,7 @@ class Cache
     
     if auxHash.length > 0
       auxHash.each do |llave, valor|
-        if Time.now >= auxHash[llave].exp_time
+        if auxHash[llave].exp_time != 0 && Time.now >= auxHash[llave].exp_time 
           auxHash.delete(llave)
         end
       end
