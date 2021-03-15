@@ -4,7 +4,7 @@ require_relative = 'MData'
 
 class MenuCache
         
-    def self.menu(cache)
+    def self.menu(cache, s) #recibe cache y socket cliente
         
         salir = false
 
@@ -17,8 +17,8 @@ class MenuCache
                 end
             end
             
-            puts("ingrese comando: ")
-            comandos = cache.stringToArray(gets.chomp())
+            s.puts("ingrese comando: ")
+            comandos = cache.stringToArray(s.gets.chomp())
             
             if(comandos[0] == "quit")
                 salir = true
@@ -28,101 +28,115 @@ class MenuCache
             case comandos[0]
                 
                 when "set"
-                    chunk = gets.chomp()
+                    s.print("=>")
+                    chunk = s.gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts "ERROR"
+                        s.puts "ERROR"
                         next
                     end
                     auxInfo.shift()
                     mData = MData.new(auxInfo) #creo instancia de objeto 'DataM'
-                    cache.comandoSet(auxInfo[0], mData)
-                    puts ("#{cache.getHash}")
+                    ret = cache.comandoSet(auxInfo[0], mData)
+                    s.puts(ret)
+                    s.puts ("#{cache.getHash}")
                 when "add"
-                    chunk = gets.chomp()
+                    s.print("=>")
+                    chunk = s.gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts "ERROR"
+                        s.puts "ERROR"
                         next
                     end
                     auxInfo.shift()
-                    cache.comandoAdd(auxInfo[0], auxInfo)
-                    puts ("#{cache.getHash}")
+                    ret = cache.comandoAdd(auxInfo[0], auxInfo)
+                    s.puts(ret) 
+                    s.puts ("#{cache.getHash}")
                 when "replace"
-                    chunk = gets.chomp()
+                    s.print("=>")
+                    chunk = s.gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts "ERROR"
+                        s.puts "ERROR"
                         next
                     end
                     auxInfo.shift()
-                    cache.comandoReplace(auxInfo[0], auxInfo)
-                    puts ("#{cache.getHash}")
+                    ret = cache.comandoReplace(auxInfo[0], auxInfo)
+                    s.puts(ret)
+                    s.puts ("#{cache.getHash}")
                 when "append"
-                    chunk = gets.chomp()
+                    s.print("=>")
+                    chunk = s.gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts "ERROR"
+                        s.puts "ERROR"
                         next
                     end
                     auxInfo.shift()
                     if cache.datos.key?(auxInfo[0]) 
                         aux = cache.bytesCheck(auxInfo[0], auxInfo[4])
                         if (aux == nil)
-                            puts "ERROR"
+                            s.puts "ERROR"
                             next
                         end    
-                        cache.comandoAppend(auxInfo[0], auxInfo)
+                        ret = cache.comandoAppend(auxInfo[0], auxInfo)
+                        s.puts(ret)
                         puts ("#{cache.getHash}")
                     else
-                        puts "NOT_STORED. La llave ingresada no existe"
+                        s.puts "NOT_STORED. La llave ingresada no existe"
                     end
                     
                 when "prepend"
-                    chunk = gets.chomp()
+                    s.print("=>")
+                    chunk = s.gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts "ERROR"
+                        s.puts "ERROR"
                         next
                     end
                     auxInfo.shift()
                     if cache.datos.key?(auxInfo[0]) 
                         aux = cache.bytesCheck(auxInfo[0], auxInfo[4])
                         if (aux == nil)
-                            puts "ERROR"
+                            s.puts "ERROR"
                             next
                         end    
-                        cache.comandoPrepend(auxInfo[0], auxInfo)
-                        puts ("#{cache.getHash}")
+                        ret = cache.comandoPrepend(auxInfo[0], auxInfo)
+                        s.puts(ret)
+                        s.puts ("#{cache.getHash}")
                     else
-                        puts "NOT_STORED. La llave ingresada no existe"
+                        s.puts "NOT_STORED. La llave ingresada no existe"
                     end                 
                     
                 when "get"
                     comandos.shift()
-                    cache.comandoGet(comandos)
+                    ret = cache.comandoGet(comandos)
+                    s.puts(ret)
                 when "gets"
                     comandos.shift()
-                    cache.comandoGets(comandos)
+                    ret = cache.comandoGets(comandos)
+                    s.puts(ret)
                 when "cas"
-                    chunk = gets.chomp()
+                    s.print("=>")
+                    chunk = s.gets.chomp()
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
-                        puts "ERROR"
+                        s.puts "ERROR"
                         next
                     elsif (auxInfo.length != 7)
-                        puts "ERROR"
+                        s.puts "ERROR"
                         next
                     end
                     auxInfo.shift()
                     if(cache.datos.key?(auxInfo[0]))
-                        cache.comandoCas(auxInfo[0], auxInfo)
-                        puts ("#{cache.getHash}")
+                        ret = cache.comandoCas(auxInfo[0], auxInfo)
+                        s.puts(ret)
+                        s.puts ("#{cache.getHash}")
                     else
-                        puts "NOT_FOUND. La llave ingresada no existe.\n"
+                        s.puts "NOT_FOUND. La llave ingresada no existe.\n"
                     end
                 else
-                    puts("COMANDO INGRESADO NO EXISTENTE. INTENTE NUEVAMENTE.\n\n") 
+                    s.puts("COMANDO INGRESADO NO EXISTENTE. INTENTE NUEVAMENTE.\n\n") 
                 
             end 
         end 

@@ -1,23 +1,20 @@
 require 'socket'
+require_relative 'Cache'
+require_relative 'MenuCache'
+require_relative 'MData'
 
 class Server
-    attr_accessor :socket, :long, :conexiones, :clientes
+    attr_accessor :socket, :long, :cache
     
     def initialize(host, port, long = 1000000000)
         
         @socket = TCPServer.new(host,port)
-        @conexiones = {}
-        @clientes = {}
-        @conexiones['servidor'] = @socket
-        @conexiones['clientes'] = @clientes
+        @cache = Cache.new()
         @long = long
         $stdout.sync = true #desactivamos el output buffer, asi podremos ver el output mientras sucede y no teniendo que cerrar el programa.
         puts("el servidor está escuchando..")
-        begin
-            correrServidor()
-        rescue Errno::EPIPE
-            puts ("CAÑO ROTO")
-        end
+        correrServidor()
+    
     end
 
     def correrServidor
@@ -46,7 +43,7 @@ class Server
             puts(s, " ingreso opcion: #{msg}\n\n")
             case msg
             when '1'
-                s.puts("Aca deberia llamar al emulador, pero es lo que estoy intentando averiguar, Mike..")
+                MenuCache.menu(@cache, s)
                 next
             when '2'
                 s.puts("Aun no esta implementado, Johnny..")

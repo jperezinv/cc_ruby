@@ -58,7 +58,7 @@ class Cache
   def comandoGet(llaves) #recibe una/s key/s y devuelve el/los valor/valores
   
     if @datos.empty?
-      return puts "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
+      return s.puts "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
     
     data = []
@@ -78,9 +78,9 @@ class Cache
     end
 
     if !data.empty? #si no esta vacio, devuelvo el array con los valores que tenga
-      return puts data #el output sera VALUE seguido de la KEY y el VALOR
+      return data #el output sera VALUE seguido de la KEY y el VALOR
     else
-      return puts ("NOT_STORED") #si esta vacio entonces devuelvo nil
+      return ("NOT_STORED") #si esta vacio entonces devuelvo nil
     end
   
   end
@@ -93,14 +93,13 @@ class Cache
       @datos.delete(@datos.keys[0]) #si el tamaño es mayor al maxTamanio, borro el primer elemento del hash (el de menos relevancia)
     end
     
-    return puts("STORED. se ha seteado el valor '#{data.chunk}' a la key '#{llave}'") #output será STORED
+    return ("STORED. se ha seteado el valor '#{data.chunk}' a la key '#{llave}'") #output será STORED
   
   end
 
   def comandoAdd (llave, valores)
     if @datos.key?(llave)
       auxArr = [llave]
-      puts("NOT_STORED")
       return comandoGet(auxArr) 
     end
     mData = MData.new(valores)
@@ -111,25 +110,25 @@ class Cache
     if @datos.key?(llave)
       @datos[llave].bytes = valores[3]
       @datos[llave].chunk = valores[4]
-      return puts("STORED")
+      return "STORED"
     else 
-      return puts "NOT_STORED"
+      return "NOT_STORED"
     end
   end
 
   def comandoAppend(llave, valores)
     @datos[llave].chunk = @datos[llave].chunk+valores[4]
-    return puts "STORED"
+    return "STORED"
   end
 
   def comandoPrepend(llave, valores)
     @datos[llave].chunk = valores[4]+@datos[llave].chunk 
-    return puts "STORED"
+    return "STORED"
   end
 
   def comandoGets(llaves)
     if @datos.empty?
-      return puts "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
+      return "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
     
     data = []
@@ -151,14 +150,13 @@ class Cache
     end
   
     if !data.empty? #si no esta vacio, devuelvo el array con los valores que tenga
-      return puts data #el output sera VALUE seguido de la KEY y el VALOR
+      return data #el output sera VALUE seguido de la KEY y el VALOR
     else
-      return puts ("NOT_STORED") #si esta vacio entonces devuelvo nil
+      return ("NOT_STORED") #si esta vacio entonces devuelvo nil
     end
   end
 
   def comandoCas(llave, valores)
-    puts("#{valores}")
     if (@datos[llave].valorCas == valores[4])
       chunk = valores.pop()
       valores.pop()
@@ -167,7 +165,7 @@ class Cache
       comandoSet(llave, mData)
       
     else
-      puts("EXISTS")
+      return ("EXISTS")
     end
 
     
