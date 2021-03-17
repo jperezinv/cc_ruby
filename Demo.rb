@@ -2,12 +2,21 @@ require_relative 'Cache'
 require_relative 'MData'
 
 
-class MenuCache
+class Demo
+    def self.correrCasos(cache, s)
+        s.puts("Bienvenido a la DEMO del EMULADOR MEMCACHED.")
+        s.puts("La misma ejecturá algunos casos de prueba para los comandos set, add, get, replace, y append, y mostrará los resultados.")
+        sleep(10)
+        s.puts("\u001B[2J") 
         
-    def self.menu(cache, s) #recibe cache y socket cliente
-        s.puts("Bievenido al MEMCACHED EMULATOR. Ingrese una linea de comando para comenzar:")
-        s.puts("(Ingrese 'quit' para volver al menú principal)\n\n")
+        casosPrueba = ["set llave1 0 15 80", "Esta es la llave 1 y se borarrá dentro 15 de segundos..", "add llave1 1 60 80", "Este add fallará, debido a que ya existe la llave1",
+            "add llave2 3 0 150", "Este si.. agregará la llave2, ya que no existe, y no se borrará (exp time = 0) mientras esta DEMO siga corriendo.", "get llave2",
+            "set llave3 2 0 100", "Soy la llave 3 y", "replace llave2 3 0 30", "Me reemplazaron el texto", "append llave3 2 0 50", " me appendiaron este texto al final.",
+            "get llave3", "get llave1 llave2 llave3", "quit"]
+       
+        cont = 0
         salir = false
+        
         while !salir
 
             Thread.new do
@@ -17,7 +26,9 @@ class MenuCache
                 end
             end
             
-            comandos = cache.stringToArray(s.gets.chomp())
+            s.puts("COMANDO INGRESADO: #{casosPrueba[cont]}")
+            comandos = cache.stringToArray(casosPrueba[cont])
+            cont += 1
             
             if(comandos[0] == "quit")
                 salir = true
@@ -27,8 +38,9 @@ class MenuCache
             case comandos[0]
                 
                 when "set"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
+                    s.print("CHUNK INGRESADO: #{casosPrueba[cont]}\n\n")
+                    chunk = casosPrueba[cont]
+                    cont += 1
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -38,9 +50,11 @@ class MenuCache
                     mData = MData.new(auxInfo) #creo instancia de objeto 'DataM'
                     ret = cache.comandoSet(auxInfo[0], mData)
                     s.puts(ret)
+                    s.puts("\n\n")
                 when "add"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
+                    s.print("CHUNK INGRESADO: #{casosPrueba[cont]}\n\n")
+                    chunk = casosPrueba[cont]
+                    cont += 1
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -49,9 +63,11 @@ class MenuCache
                     auxInfo.shift()
                     ret = cache.comandoAdd(auxInfo[0], auxInfo)
                     s.puts(ret) 
+                    s.puts("\n\n")
                 when "replace"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
+                    s.print("CHUNK INGRESADO: #{casosPrueba[cont]}\n\n")
+                    chunk = casosPrueba[cont]
+                    cont += 1
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -60,9 +76,11 @@ class MenuCache
                     auxInfo.shift()
                     ret = cache.comandoReplace(auxInfo[0], auxInfo)
                     s.puts(ret)
+                    s.puts("\n\n")
                 when "append"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
+                    s.print("CHUNK INGRESADO: #{casosPrueba[cont]}\n\n")
+                    chunk = casosPrueba[cont]
+                    cont += 1
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -77,61 +95,27 @@ class MenuCache
                         end    
                         ret = cache.comandoAppend(auxInfo[0], auxInfo)
                         s.puts(ret)
+                        s.puts("\n\n")
                     else
                         s.puts "NOT_STORED. La llave ingresada no existe"
                     end
-                    
-                when "prepend"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
-                    auxInfo = cache.datosToArray(comandos, chunk)
-                    if(auxInfo == nil)
-                        s.puts "ERROR"
-                        next
-                    end
-                    auxInfo.shift()
-                    if cache.datos.key?(auxInfo[0]) 
-                        aux = cache.bytesCheck(auxInfo[0], auxInfo[4])
-                        if (aux == nil)
-                            s.puts "ERROR"
-                            next
-                        end    
-                        ret = cache.comandoPrepend(auxInfo[0], auxInfo)
-                        s.puts(ret)
-                    else
-                        s.puts "NOT_STORED. La llave ingresada no existe"
-                    end                 
                     
                 when "get"
+                    s.puts("\n\n")
                     comandos.shift()
                     ret = cache.comandoGet(comandos)
                     s.puts(ret)
-                when "gets"
-                    comandos.shift()
-                    ret = cache.comandoGets(comandos)
-                    s.puts(ret)
-                when "cas"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
-                    auxInfo = cache.datosToArray(comandos, chunk)
-                    if(auxInfo == nil)
-                        s.puts "ERROR"
-                        next
-                    elsif (auxInfo.length != 7)
-                        s.puts "ERROR"
-                        next
-                    end
-                    auxInfo.shift()
-                    if(cache.datos.key?(auxInfo[0]))
-                        ret = cache.comandoCas(auxInfo[0], auxInfo)
-                        s.puts(ret)
-                    else
-                        s.puts "NOT_FOUND. La llave ingresada no existe.\n"
-                    end
+                    s.puts("\n\n")
                 else
                     s.puts("COMANDO INGRESADO NO EXISTENTE. INTENTE NUEVAMENTE.\n\n") 
                 
             end 
+            sleep(2)
         end 
+        s.puts("La DEMO de MEMCACHED EMULATOR ha terminado. ingrese Enter para volver al menu principal.")
+        s.gets.chomp
     end
 end
+
+
+

@@ -2,6 +2,7 @@ require 'socket'
 require_relative 'Cache'
 require_relative 'MenuCache'
 require_relative 'MData'
+require_relative 'Demo'
 
 class Server
     attr_accessor :socket, :long, :cache
@@ -12,7 +13,7 @@ class Server
         @cache = Cache.new()
         @long = long
         $stdout.sync = true #desactivamos el output buffer, asi podremos ver el output mientras sucede y no teniendo que cerrar el programa.
-        puts("el servidor está escuchando..")
+        puts("el servidor está escuchando en el puerto #{port}..")
         correrServidor()
     
     end
@@ -33,31 +34,37 @@ class Server
         
         salir = false
         while !salir do
-            s.puts("Bienvenido al Taller RUBY - MEMCACHED EMULATOR\n\n")
+            s.puts("\u001B[2J") 
+            s.puts("Bienvenido al Taller RUBY: MEMCACHED EMULATOR\n\n")
             s.puts("1 -> Correr Memcached emulator")
             s.puts("2 -> Correr version DEMO con casos de prueba")
             s.puts("3 -> Correr tests")
             s.puts("4 -> Salir\n\n")
-            s.puts("Ingresar opcion: ")
+            s.puts("Ingrese una opcion: ")
             msg = s.recv(long).chomp()
             puts(s, " ingreso opcion: #{msg}\n\n")
             case msg
             when '1'
+                s.puts("\u001B[2J") #limpia pantalla en telnet
                 MenuCache.menu(@cache, s)
                 next
             when '2'
-                s.puts("Aun no esta implementado, Johnny..")
+                s.puts("\u001B[2J")          
+                Demo.correrCasos(@cache, s)
                 next
             when '3'
                 s.puts("No disponible, Jerry..")
+                sleep(2)
                 next
             when '4'
                 salir = true
                 next
             else
                 s.puts("Opcion Incorrecta. Volve a intentarlo.")
+                sleep(5)
                 next
             end
+
         end
         puts("sali del while")
     end
@@ -65,27 +72,4 @@ end
 
 servidor = Server.new('localhost', 2000)
 
-
-=begin
-servidor = TCPServer.new('localhost', 2000) #abro servidor en el puerto 2000
-puts("El servidor esta corriendo!")
-long = 1000000000
-
-$stdout.sync = true #desactivamos el output buffer, asi podremos ver el output mientras sucede y no teniendo que cerrar el programa.
-
-
-    
-
-loop do # el servidor esta ejecutandose permanentemente, aceptando multiples conexiones
-    
-    Thread.start(servidor.accept()) do |s|    
-        puts(s, " es aceptado!")
-        s.puts(Time.now)
-        msg = s.recv(long) 
-        puts("cliente dice: #{msg}\n\n")
-        puts(s, " se va!")
-        s.close
-    end
-end
-=end
 

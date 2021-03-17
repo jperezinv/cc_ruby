@@ -1,5 +1,5 @@
-require_relative = 'MenuCache'
-require_relative = 'MData'
+require_relative 'MenuCache'
+require_relative 'MData'
 
 class Cache
   attr_accessor :maxTamanio, :datos, :tokenCas
@@ -58,7 +58,7 @@ class Cache
   def comandoGet(llaves) #recibe una/s key/s y devuelve el/los valor/valores
   
     if @datos.empty?
-      return s.puts "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
+      return "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
     
     data = []
@@ -93,7 +93,7 @@ class Cache
       @datos.delete(@datos.keys[0]) #si el tamaño es mayor al maxTamanio, borro el primer elemento del hash (el de menos relevancia)
     end
     
-    return ("STORED. se ha seteado el valor '#{data.chunk}' a la key '#{llave}'") #output será STORED
+    return ("STORED") #output será STORED
   
   end
 
