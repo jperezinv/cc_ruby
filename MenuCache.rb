@@ -69,18 +69,8 @@ class MenuCache
                         next
                     end
                     auxInfo.shift()
-                    if cache.datos.key?(auxInfo[0]) 
-                        aux = cache.bytesCheck(auxInfo[0], auxInfo[4])
-                        if (aux == nil)
-                            s.puts "ERROR"
-                            next
-                        end    
-                        ret = cache.comandoAppend(auxInfo[0], auxInfo)
-                        s.puts(ret)
-                    else
-                        s.puts "NOT_STORED. La llave ingresada no existe"
-                    end
-                    
+                    ret = cache.comandoAppend(auxInfo[0], auxInfo)
+                    s.puts(ret) 
                 when "prepend"
                     s.print("=>")
                     chunk = s.gets.chomp()
@@ -90,18 +80,8 @@ class MenuCache
                         next
                     end
                     auxInfo.shift()
-                    if cache.datos.key?(auxInfo[0]) 
-                        aux = cache.bytesCheck(auxInfo[0], auxInfo[4])
-                        if (aux == nil)
-                            s.puts "ERROR"
-                            next
-                        end    
-                        ret = cache.comandoPrepend(auxInfo[0], auxInfo)
-                        s.puts(ret)
-                    else
-                        s.puts "NOT_STORED. La llave ingresada no existe"
-                    end                 
-                    
+                    ret = cache.comandoPrepend(auxInfo[0], auxInfo)
+                    s.puts(ret)                
                 when "get"
                     comandos.shift()
                     ret = cache.comandoGet(comandos)
@@ -122,12 +102,8 @@ class MenuCache
                         next
                     end
                     auxInfo.shift()
-                    if(cache.datos.key?(auxInfo[0]))
-                        ret = cache.comandoCas(auxInfo[0], auxInfo)
-                        s.puts(ret)
-                    else
-                        s.puts "NOT_FOUND. La llave ingresada no existe.\n"
-                    end
+                    ret = cache.comandoCas(auxInfo[0], auxInfo)
+                    s.puts(ret)
                 else
                     s.puts("COMANDO INGRESADO NO EXISTENTE. INTENTE NUEVAMENTE.\n\n") 
                 

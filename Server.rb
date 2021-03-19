@@ -24,6 +24,7 @@ class Server
             Thread.start(@socket.accept()) do |s|    
                 puts(s, " es bienvenido")
                 menuServer(s)
+                puts(s, " se va!")
                 s.close
             end
         end
@@ -66,7 +67,6 @@ class Server
             end
 
         end
-        puts("sali del while")
     end
 end
 

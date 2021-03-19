@@ -128,13 +128,30 @@ class Cache
   end
 
   def comandoAppend(llave, valores)
-    @datos[llave].chunk = @datos[llave].chunk+valores[4]
-    return "STORED"
+    if @datos.key?(llave) 
+      aux = bytesCheck(llave, valores[4])
+      if (aux == nil)
+        return "ERROR"
+      end    
+      @datos[llave].chunk = @datos[llave].chunk+valores[4]
+      return "STORED"
+    else
+      return "NOT_STORED"
+    end
   end
 
   def comandoPrepend(llave, valores)
-    @datos[llave].chunk = valores[4]+@datos[llave].chunk 
-    return "STORED"
+    if @datos.key?(llave) 
+      aux = bytesCheck(llave, valores[4])
+      if (aux == nil)
+        return "ERROR"        
+      end    
+      @datos[llave].chunk = valores[4]+@datos[llave].chunk 
+      return "STORED"
+    else
+      return "NOT_STORED"
+    end
+
   end
 
   def comandoGets(llaves)
@@ -163,21 +180,26 @@ class Cache
     if !data.empty? #si no esta vacio, devuelvo el array con los valores que tenga
       return data #el output sera VALUE seguido de la KEY y el VALOR
     else
-      return ("NOT_STORED") #si esta vacio entonces devuelvo nil
+      return "NOT_STORED" #si esta vacio entonces devuelvo nil
     end
   end
 
   def comandoCas(llave, valores)
-    if (@datos[llave].valorCas == valores[4])
-      chunk = valores.pop()
-      valores.pop()
-      valores.push(chunk)
-      mData = MData.new(valores)
-      comandoSet(llave, mData)
-      
+    if(@datos.key?(llave))
+      if (@datos[llave].valorCas == valores[4])
+        chunk = valores.pop()
+        valores.pop()
+        valores.push(chunk)
+        mData = MData.new(valores)
+        comandoSet(llave, mData)
+        
+      else
+        return "EXISTS"
+      end
     else
-      return ("EXISTS")
+      return "NOT_FOUND"
     end
+      
 
     
   end
