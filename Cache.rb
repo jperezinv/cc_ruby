@@ -12,6 +12,10 @@ class Cache
 
   #FUNCIONES AUXILIARES
 
+  def soloNum(string) #Devuelve true si el string contiene digitos o esta vacio, sino devuelve false
+    string.scan(/\D/).empty?
+  end
+
   def getHash
     return @datos.to_a.reverse
   end
@@ -19,11 +23,18 @@ class Cache
   def datosToArray(comandos, chunk) 
     
     if (comandos[4].to_i < chunk.length) #auxArr[4] representa los bytes del chunk.
+      return nil   
+    elsif !soloNum(comandos[4]) 
+      return nil
+    elsif !soloNum(comandos[3])
+      return nil
+    elsif !soloNum(comandos[2])
       return nil
     else
       comandos.push(chunk)
       return comandos #retorno un array con TODA la informacion (comando, key, flag, exptime, bytes y chunk)
     end
+
   end
 
   def bytesCheck(llave, texto)
