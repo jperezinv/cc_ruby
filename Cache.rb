@@ -20,6 +20,9 @@ class Cache
     return @datos.to_a.reverse
   end
 
+  
+  #Esta funcion parsea el arreglo y separa por espacios, devolviendo un arreglo con 
+  #cada parte de la linea del comando separada 
   def datosToArray(comandos, chunk) 
     
     if (comandos[4].to_i < chunk.length) #auxArr[4] representa los bytes del chunk.
@@ -47,7 +50,7 @@ class Cache
     end
   end
 
-  def stringToArray(string) #para comando get y gets
+  def stringToArray(string) 
     return string.split(" ")
   end
 

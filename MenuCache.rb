@@ -29,6 +29,10 @@ class MenuCache
                 when "set"
                     s.print("=>")
                     chunk = s.gets.chomp()
+                    if(comandos.length != 5)
+                        s.puts "ERROR"
+                        next
+                    end
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -41,6 +45,10 @@ class MenuCache
                 when "add"
                     s.print("=>")
                     chunk = s.gets.chomp()
+                    if(comandos.length != 5)
+                        s.puts "ERROR"
+                        next
+                    end
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -52,6 +60,10 @@ class MenuCache
                 when "replace"
                     s.print("=>")
                     chunk = s.gets.chomp()
+                    if(comandos.length != 5)
+                        s.puts "ERROR"
+                        next
+                    end
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -63,6 +75,10 @@ class MenuCache
                 when "append"
                     s.print("=>")
                     chunk = s.gets.chomp()
+                    if(comandos.length != 5)
+                        s.puts "ERROR"
+                        next
+                    end
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"
@@ -74,6 +90,10 @@ class MenuCache
                 when "prepend"
                     s.print("=>")
                     chunk = s.gets.chomp()
+                    if(comandos.length != 5)
+                        s.puts "ERROR"
+                        next
+                    end
                     auxInfo = cache.datosToArray(comandos, chunk)
                     if(auxInfo == nil)
                         s.puts "ERROR"

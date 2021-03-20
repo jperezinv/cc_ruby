@@ -1,9 +1,10 @@
 require_relative 'Cache'
 require_relative 'MData'
 
-
 class Demo
+    
     def self.correrCasos(cache, s)
+        
         s.puts("Bienvenido a la DEMO del EMULADOR MEMCACHED.")
         s.puts("La misma ejecturá algunos casos de prueba para los comandos set, add, get, replace, y append, y mostrará los resultados.")
         sleep(10)
