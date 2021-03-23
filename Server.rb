@@ -50,8 +50,9 @@ class Server
                 MenuCache.menu(@cache, s)
                 next
             when '2'
-                s.puts("\u001B[2J")          
-                Demo.correrCasos(@cache, s)
+                s.puts("\u001B[2J")
+                cacheDemo = Cache.new()          
+                Demo.correrCasos(cacheDemo, s)
                 next
             when '3'
                 s.puts("No disponible, Jerry..")
@@ -62,7 +63,7 @@ class Server
                 next
             else
                 s.puts("Opcion Incorrecta. Volve a intentarlo.")
-                sleep(5)
+                sleep(4)
                 next
             end
 
