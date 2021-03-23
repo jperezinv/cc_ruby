@@ -39,7 +39,7 @@ class Server
             s.puts("Bienvenido al Taller RUBY: MEMCACHED EMULATOR\n\n")
             s.puts("1 -> Correr Memcached emulator")
             s.puts("2 -> Correr version DEMO con casos de prueba")
-            s.puts("3 -> Correr tests")
+            s.puts("3 -> Leer README")
             s.puts("4 -> Salir\n\n")
             s.puts("Ingrese una opcion: ")
             msg = s.recv(long).chomp()
@@ -55,8 +55,10 @@ class Server
                 Demo.correrCasos(cacheDemo, s)
                 next
             when '3'
-                s.puts("No disponible, Jerry..")
-                sleep(2)
+                s.puts("\u001B[2J")
+                s.puts File.read("README.md")
+                s.puts("ingrese Enter para volver al menu principal.")
+                msg = s.recv(long).chomp()                
                 next
             when '4'
                 salir = true
