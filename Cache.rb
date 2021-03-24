@@ -4,7 +4,7 @@ require_relative 'MData'
 class Cache
   attr_accessor :maxTamanio, :datos, :tokenCas
 
-  def initialize(maxTamanio = 3, tokenCas = 1)
+  def initialize(maxTamanio = 10, tokenCas = 1)
     @datos = {} #el ultimo sera el primero en el LRU
     @maxTamanio = maxTamanio
     @tokenCas = tokenCas
