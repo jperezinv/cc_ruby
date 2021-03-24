@@ -27,9 +27,9 @@ class Demo
                 end
             end
             
-            s.puts("COMANDO INGRESADO: #{casosPrueba[cont]}")
+            s.puts("COMANDO INGRESADO: #{casosPrueba[cont]}") #mostrara el comando ingresado al usuario.
             comandos = cache.stringToArray(casosPrueba[cont])
-            cont += 1
+            cont += 1 #contador que va avanzando por el array con todos los casos de prueba.
             
             if(comandos[0] == "quit")
                 salir = true
@@ -39,7 +39,7 @@ class Demo
             case comandos[0]
                 
                 when "set"
-                    s.print("CHUNK INGRESADO: #{casosPrueba[cont]}\n\n")
+                    s.print("CHUNK INGRESADO: #{casosPrueba[cont]}\n\n") #muestra el chunk ingresado al usuario.
                     chunk = casosPrueba[cont]
                     cont += 1
                     if(comandos.length != 5)

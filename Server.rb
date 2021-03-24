@@ -34,7 +34,7 @@ class Server
     def menuServer(s)
         
         salir = false
-        while !salir do
+        while !salir do #Menu del servidor.
             s.puts("\u001B[2J") 
             s.puts("Bienvenido al Taller RUBY: MEMCACHED EMULATOR\n\n")
             s.puts("1 -> Correr Memcached emulator")
@@ -46,17 +46,17 @@ class Server
             puts(s, " ingreso opcion: #{msg}\n\n")
             case msg
             when '1'
-                s.puts("\u001B[2J") #limpia pantalla en telnet
+                s.puts("\u001B[2J") #caracter 'limpia pantalla' de telnet. en realidad solo agrega nuevas lineas en blanco que dan esa sensación.
                 MenuCache.menu(@cache, s)
                 next
             when '2'
                 s.puts("\u001B[2J")
                 cacheDemo = Cache.new()          
-                Demo.correrCasos(cacheDemo, s)
+                Demo.correrCasos(cacheDemo, s) #para correr la demo instancio un 2ndo objeto de la clase Cache, que sera solo utilizado por la DEMO.
                 next
             when '3'
                 s.puts("\u001B[2J")
-                s.puts File.read("README.md")
+                s.puts File.read("README.md") #leo e imprimo el README.md
                 s.puts("ingrese Enter para volver al menu principal.")
                 msg = s.recv(long).chomp()                
                 next

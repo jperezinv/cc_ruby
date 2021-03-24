@@ -21,8 +21,8 @@ class Cache
   end
 
   
-  #Esta funcion parsea el arreglo y separa por espacios, devolviendo un arreglo con 
-  #cada parte de la linea del comando separada 
+  #Esta funcion realiza un check al arreglo con los comandos ingresados, devolviendo un arreglo con 
+  #junto con el chunk, si es que pasa los checks. sino devolverá NIL. 
   def datosToArray(comandos, chunk) 
     
     if (comandos[4].to_i < chunk.length) #auxArr[4] representa los bytes del chunk.
@@ -40,6 +40,8 @@ class Cache
 
   end
 
+  #Funcion auxiliar de checkeo para los comandos prepend y append.
+  #Compara el largo del texto a ingresar + el texto del chunk asociado, y es si es mayor a los bytes de la key, devuelve nil. sino, devuelve el texto 
   def bytesCheck(llave, texto)
     bytes = @datos[llave].bytes
     value = @datos[llave].chunk
@@ -50,6 +52,7 @@ class Cache
     end
   end
 
+  #Funcion auxiliar para splitear el string a un arreglo, separado por espacios.
   def stringToArray(string) 
     return string.split(" ")
   end
@@ -58,7 +61,7 @@ class Cache
     
     if auxHash.length > 0
       auxHash.each do |llave, valor|
-        if auxHash[llave].exp_time != 0 && Time.now >= auxHash[llave].exp_time 
+        if auxHash[llave].exp_time != 0 && Time.now >= auxHash[llave].exp_time #si la llave es distinta de 0 y el tiempo expiró, entonces borro la key del hash.
           auxHash.delete(llave)
         end
       end
@@ -111,7 +114,7 @@ class Cache
   
   end
 
-  def comandoAdd (llave, valores)
+  def comandoAdd (llave, valores) #recibe una key y si no existe, la agrega, sino devuelve el valor de la key existente.
     if @datos.key?(llave)
       auxArr = [llave]
       return comandoGet(auxArr) 
@@ -120,7 +123,7 @@ class Cache
     comandoSet(llave,mData)
   end
 
-  def comandoReplace(llave, valores)
+  def comandoReplace(llave, valores) #recibe una key y reemplaza su chunk y los bytes del mismo
     if @datos.key?(llave)
       @datos[llave].bytes = valores[3]
       @datos[llave].chunk = valores[4]
@@ -130,7 +133,9 @@ class Cache
     end
   end
 
-  def comandoAppend(llave, valores)
+  #recibe una key y agrega texto despues del chunk. 
+  #se hace un checkeo del largo de texto y bytes con el comando bytes check
+  def comandoAppend(llave, valores) 
     if @datos.key?(llave) 
       aux = bytesCheck(llave, valores[4])
       if (aux == nil)
@@ -143,6 +148,7 @@ class Cache
     end
   end
 
+  #lo mismo que append pero el texto se coloca antes del chunk.
   def comandoPrepend(llave, valores)
     if @datos.key?(llave) 
       aux = bytesCheck(llave, valores[4])
@@ -157,7 +163,7 @@ class Cache
 
   end
 
-  def comandoGets(llaves)
+  def comandoGets(llaves) #recibe una/s key/s y devuelve su valor junto con el valor del token cas asociado a cada key
     if @datos.empty?
       return "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
@@ -174,7 +180,7 @@ class Cache
             @datos[k] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
             data[cont] = "VALUE #{k} #{@datos[k].flag} #{@datos[k].bytes} #{@datos[k].valorCas}\r\n #{@datos[k].chunk}" 
             cont += 1
-            @tokenCas += 1
+            @tokenCas += 1 #el token cas siempre comienza en 1.
           end    
         end
       end
@@ -187,12 +193,12 @@ class Cache
     end
   end
 
-  def comandoCas(llave, valores)
+  def comandoCas(llave, valores) #funciona como un set, pero solo si el usuario ingresa el token cas correspondiente a la key que quiere re-setear.
     if(@datos.key?(llave))
-      if (@datos[llave].valorCas == valores[4])
-        chunk = valores.pop()
+      if (@datos[llave].valorCas == valores[4]) #si el valor cas coincide,
+        chunk = valores.pop() #quito el chunk del array y lo obtengo
         valores.pop()
-        valores.push(chunk)
+        valores.push(chunk) #arriba quito el token cas porque ya no lo necesito para sobreeescribir la nueva key. el valor CAS de la nueva key sera NIL.
         mData = MData.new(valores)
         comandoSet(llave, mData)
         
