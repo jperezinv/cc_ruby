@@ -11,7 +11,7 @@ class MData
         end
         @bytes = comandos[3]
         @chunk = comandos[4]
-        @valorCas = nil
+        @valorCas = 1
     end
 
 end

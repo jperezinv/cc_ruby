@@ -12,7 +12,7 @@ class MenuCache
 
             Thread.new do #se ejecutará todo el tiempo mientras dure el emulador memcached, el control de tiempo, para ir borrando las keys expiradas.
                 while true do
-                    cache.controlTiempo(cache.datos)
+                    cache.controlTiempo
                     sleep 1 
                 end
             end
@@ -29,81 +29,51 @@ class MenuCache
             case comandos[0] #en la posicion 0 del arreglo se encuentra el comando a ejecutar (set, add, get, etc..)
                 
                 when "set"
-                    s.print("=>")
-                    chunk = s.gets.chomp() #consume el chunk terminado en enter.
-                    if(comandos.length != 5) #si el largo del array comandos es mayor a 5, es que el usuario ingreso algo de mas. en este caso sale con mensaje de ERROR.
+                    auxInfo = bloqueCheck(cache, s, comandos)
+                    if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
+                    else
+                        mData = MData.new(auxInfo) #creo instancia de objeto 'DataM' para setearlo
+                        ret = cache.comandoSet(auxInfo[0], mData)
+                        s.puts(ret)
                     end
-                    auxInfo = cache.datosToArray(comandos, chunk) #funcion aux de checkeo de comandos.
-                    if(auxInfo == nil)
-                        s.puts "ERROR"
-                        next
-                    end
-                    auxInfo.shift() #quito del frente del arreglo el nombre del comando, que ya no será necesario.
-                    mData = MData.new(auxInfo) #creo instancia de objeto 'DataM' para setearlo
-                    ret = cache.comandoSet(auxInfo[0], mData)
-                    s.puts(ret)
                 when "add"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
-                    if(comandos.length != 5)
+                    auxInfo = bloqueCheck(cache, s, comandos)
+                    if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
+                    else
+                        ret = cache.comandoAdd(auxInfo[0], auxInfo)
+                        s.puts(ret) 
                     end
-                    auxInfo = cache.datosToArray(comandos, chunk)
-                    if(auxInfo == nil)
-                        s.puts "ERROR"
-                        next
-                    end
-                    auxInfo.shift()
-                    ret = cache.comandoAdd(auxInfo[0], auxInfo)
-                    s.puts(ret) 
                 when "replace"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
-                    if(comandos.length != 5)
+                    auxInfo = bloqueCheck(cache, s, comandos)
+                    if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
+                    else
+                        ret = cache.comandoReplace(auxInfo[0], auxInfo)
+                        s.puts(ret)
                     end
-                    auxInfo = cache.datosToArray(comandos, chunk)
-                    if(auxInfo == nil)
-                        s.puts "ERROR"
-                        next
-                    end
-                    auxInfo.shift()
-                    ret = cache.comandoReplace(auxInfo[0], auxInfo)
-                    s.puts(ret)
                 when "append"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
-                    if(comandos.length != 5)
+                    auxInfo = bloqueCheck(cache, s, comandos)
+                    if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
+                    else
+                        ret = cache.comandoAppend(auxInfo[0], auxInfo)
+                        s.puts(ret)
                     end
-                    auxInfo = cache.datosToArray(comandos, chunk)
-                    if(auxInfo == nil)
-                        s.puts "ERROR"
-                        next
-                    end
-                    auxInfo.shift()
-                    ret = cache.comandoAppend(auxInfo[0], auxInfo)
-                    s.puts(ret) 
                 when "prepend"
-                    s.print("=>")
-                    chunk = s.gets.chomp()
-                    if(comandos.length != 5)
+                    auxInfo = bloqueCheck(cache, s, comandos)
+                    if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
-                    end
-                    auxInfo = cache.datosToArray(comandos, chunk)
-                    if(auxInfo == nil)
-                        s.puts "ERROR"
-                        next
-                    end
-                    auxInfo.shift()
-                    ret = cache.comandoPrepend(auxInfo[0], auxInfo)
-                    s.puts(ret)                
+                    else
+                        ret = cache.comandoPrepend(auxInfo[0], auxInfo)
+                        s.puts(ret)  
+                    end          
                 when "get"
                     comandos.shift()
                     ret = cache.comandoGet(comandos)
@@ -133,4 +103,19 @@ class MenuCache
             end 
         end 
     end
+
+    def self.bloqueCheck(cache, s, comandos)
+        s.print("=>")
+        chunk = s.gets.chomp() #consume el chunk terminado en enter.
+        if(comandos.length != 5) #si el largo del array comandos es mayor a 5, es que el usuario ingreso algo de mas. en este caso sale con mensaje de ERROR.
+            return "ERROR"
+        end
+        auxInfo = cache.datosToArray(comandos, chunk) #funcion aux de checkeo de comandos.
+        if(auxInfo == nil)
+            return "ERROR"
+        end
+        auxInfo.shift() #quito del frente del arreglo el nombre del comando, que ya no será necesario.
+        return auxInfo
+    end
+
 end

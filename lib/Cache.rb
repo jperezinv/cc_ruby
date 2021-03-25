@@ -2,12 +2,11 @@ require_relative 'MenuCache'
 require_relative 'MData'
 
 class Cache
-  attr_accessor :maxTamanio, :datos, :tokenCas
+  attr_accessor :maxTamanio, :datos
 
-  def initialize(maxTamanio = 10, tokenCas = 1)
+  def initialize(maxTamanio = 5, tokenCas = 1)
     @datos = {} #el ultimo sera el primero en el LRU
     @maxTamanio = maxTamanio
-    @tokenCas = tokenCas
   end
 
   #FUNCIONES AUXILIARES
@@ -57,23 +56,29 @@ class Cache
     return string.split(" ")
   end
 
-  def controlTiempo(auxHash) #recibe la coleccion de llaves de el emulador memcached
+  def controlTiempo #recibe la coleccion de datos de el emulador memcached
     
-    if auxHash.length > 0
-      auxHash.each do |llave, valor|
-        if auxHash[llave].exp_time != 0 && Time.now >= auxHash[llave].exp_time #si la llave es distinta de 0 y el tiempo expiró, entonces borro la key del hash.
-          auxHash.delete(llave)
+    if @datos.length > 0
+      @datos.each do |llave, valor|
+        if @datos[llave].exp_time != 0 && Time.now >= @datos[llave].exp_time #si la llave es distinta de 0 y el tiempo expiró, entonces borro la key del hash.
+          @datos.delete(llave)
+          return true
         end
       end
     end
+    
+    return false
   
+
   end
   
 
   #COMANDOS
 
   def comandoGet(llaves) #recibe una/s key/s y devuelve el/los valor/valores
-  
+    
+    controlTiempo()
+    
     if @datos.empty?
       return "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
@@ -81,24 +86,19 @@ class Cache
     data = []
     cont = 0
     
-    if llaves.length > 0
-      llaves.each do |llave|
-        for k in @datos.keys
-          if k == llave
-            borrado = @datos.delete(k) #borro y obtengo el valor borrado
-            @datos[k] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
-            data[cont] = "VALUE #{k} #{@datos[k].flag} #{@datos[k].bytes}\r\n #{@datos[k].chunk}"  #despues guardo el par key-valor en el array que retornaré al final 
-            cont += 1
-          end    
-        end
-      end
+    llaves.each do |llave|
+      if @datos.key?(llave)
+        borrado = @datos.delete(llave) #borro y obtengo el valor borrado
+        @datos[llave] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
+        data[cont] = "VALUE #{llave} #{@datos[llave].flag} #{@datos[llave].bytes}\r\n #{@datos[llave].chunk}"  #despues guardo el par key-valor en el array que retornaré al final 
+        cont += 1
+      end  
     end
+    
+    data.push("END\r\n")
 
-    if !data.empty? #si no esta vacio, devuelvo el array con los valores que tenga
-      return data #el output sera VALUE seguido de la KEY y el VALOR
-    else
-      return ("NOT_STORED") #si esta vacio entonces devuelvo nil
-    end
+    return data #el output sera VALUE seguido de la KEY y el VALOR
+    
   
   end
 
@@ -115,18 +115,24 @@ class Cache
   end
 
   def comandoAdd (llave, valores) #recibe una key y si no existe, la agrega, sino devuelve el valor de la key existente.
+
+    controlTiempo()
+
     if @datos.key?(llave)
-      auxArr = [llave]
-      return comandoGet(auxArr) 
+      return "NOT_STORED" 
     end
     mData = MData.new(valores)
     comandoSet(llave,mData)
   end
 
   def comandoReplace(llave, valores) #recibe una key y reemplaza su chunk y los bytes del mismo
+    
+    controlTiempo()
+    
     if @datos.key?(llave)
       @datos[llave].bytes = valores[3]
       @datos[llave].chunk = valores[4]
+      @datos[llave].valorCas += 1
       return "STORED"
     else 
       return "NOT_STORED"
@@ -136,12 +142,16 @@ class Cache
   #recibe una key y agrega texto despues del chunk. 
   #se hace un checkeo del largo de texto y bytes con el comando bytes check
   def comandoAppend(llave, valores) 
+    
+    controlTiempo()
+
     if @datos.key?(llave) 
       aux = bytesCheck(llave, valores[4])
       if (aux == nil)
         return "ERROR"
       end    
       @datos[llave].chunk = @datos[llave].chunk+valores[4]
+      @datos[llave].valorCas += 1
       return "STORED"
     else
       return "NOT_STORED"
@@ -150,12 +160,16 @@ class Cache
 
   #lo mismo que append pero el texto se coloca antes del chunk.
   def comandoPrepend(llave, valores)
+
+    controlTiempo()
+
     if @datos.key?(llave) 
       aux = bytesCheck(llave, valores[4])
       if (aux == nil)
         return "ERROR"        
       end    
-      @datos[llave].chunk = valores[4]+@datos[llave].chunk 
+      @datos[llave].chunk = valores[4]+@datos[llave].chunk
+      @datos[llave].valorCas += 1
       return "STORED"
     else
       return "NOT_STORED"
@@ -164,6 +178,9 @@ class Cache
   end
 
   def comandoGets(llaves) #recibe una/s key/s y devuelve su valor junto con el valor del token cas asociado a cada key
+    
+    controlTiempo()
+    
     if @datos.empty?
       return "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
@@ -173,43 +190,44 @@ class Cache
     
     if llaves.length > 0
       llaves.each do |llave|
-        for k in @datos.keys
-          if k == llave
-            borrado = @datos.delete(k) #borro y obtengo el valor borrado
-            borrado.valorCas = @tokenCas.to_s
-            @datos[k] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
-            data[cont] = "VALUE #{k} #{@datos[k].flag} #{@datos[k].bytes} #{@datos[k].valorCas}\r\n #{@datos[k].chunk}" 
-            cont += 1
-            @tokenCas += 1 #el token cas siempre comienza en 1.
-          end    
-        end
+        if @datos.key?(llave)
+          borrado = @datos.delete(llave) #borro y obtengo el valor borrado
+          @datos[llave] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
+          data[cont] = "VALUE #{llave} #{@datos[llave].flag} #{@datos[llave].bytes} #{@datos[llave].valorCas}\r\n #{@datos[llave].chunk}" 
+          cont += 1
+        end    
       end
     end
-  
-    if !data.empty? #si no esta vacio, devuelvo el array con los valores que tenga
-      return data #el output sera VALUE seguido de la KEY y el VALOR
-    else
-      return "NOT_STORED" #si esta vacio entonces devuelvo nil
-    end
+    
+    data.push("END\r\n")
+    
+    return data
+ 
   end
 
   def comandoCas(llave, valores) #funciona como un set, pero solo si el usuario ingresa el token cas correspondiente a la key que quiere re-setear.
-    if(@datos.key?(llave))
-      if (@datos[llave].valorCas == valores[4]) #si el valor cas coincide,
+    
+    controlTiempo()
+    
+    if (@datos.key?(llave))
+      if (@datos[llave].valorCas == valores[4].to_i) #si el valor cas coincide,
+        
         chunk = valores.pop() #quito el chunk del array y lo obtengo
         valores.pop()
         valores.push(chunk) #arriba quito el token cas porque ya no lo necesito para sobreeescribir la nueva key. el valor CAS de la nueva key sera NIL.
         mData = MData.new(valores)
         comandoSet(llave, mData)
-        
+      
       else
         return "EXISTS"
       end
     else
       return "NOT_FOUND"
     end
-      
-
-    
+  
+  
   end
+
+
+
 end

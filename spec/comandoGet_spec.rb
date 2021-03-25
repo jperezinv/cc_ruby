@@ -1,12 +1,12 @@
-require_relative 'Cache'
-require_relative 'MData'
+require_relative '../lib/Cache.rb'
+require_relative '../lib/MData.rb'
 
 
 describe Cache do
     
-    context "en comandoGets" do
+    context "en comandoGet" do
         
-        it "Key existente, devolverá un array conteniendo un string con
+        it "Key existente, devolverá un array conteniendo un string 
         los datos, precedido por 'VALUE'" do
             
             mem = Cache.new()
@@ -15,8 +15,8 @@ describe Cache do
             mem.comandoSet(auxArr[0], data) #seteo key: mykey con 
                                             #valor: "Hola, testeando"
             llave = ["mykey"]
-            retornara = ["VALUE mykey 0 50 1\r\n Hola, testeando."]
-            ret = mem.comandoGets(llave)
+            retornara = ["VALUE mykey 0 50\r\n Hola, testeando."]
+            ret = mem.comandoGet(llave)
             expect(ret).to eq retornara
         end
 
@@ -37,8 +37,8 @@ describe Cache do
             mem.comandoSet(auxArr3[0], data3)
 
             llaves = ["mykey1", "mykey2", "mykey3"]
-            retornara = ["VALUE mykey1 0 50 1\r\n Hola, testeando.", "VALUE mykey2 0 50 2\r\n Hola, testing.", "VALUE mykey3 0 50 3\r\n Hola, testeandou."]
-            ret = mem.comandoGets(llaves)
+            retornara = ["VALUE mykey1 0 50\r\n Hola, testeando.", "VALUE mykey2 0 50\r\n Hola, testing.", "VALUE mykey3 0 50\r\n Hola, testeandou."]
+            ret = mem.comandoGet(llaves)
             expect(ret).to eq retornara
 
         end
@@ -52,7 +52,7 @@ describe Cache do
 
             llave = ["mykey"]
             retornara = "NOT_STORED"
-            ret = mem.comandoGets(llave)
+            ret = mem.comandoGet(llave)
             expect(ret).to eq retornara
 
         end
@@ -62,12 +62,12 @@ describe Cache do
             mem = Cache.new()
             llaves = ["mykey1", "mykey2", "mykey3"]
             retornara = "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
-            ret = mem.comandoGets(llaves)
+            ret = mem.comandoGet(llaves)
             expect(ret).to eq retornara
 
         end
 
-        it "Si ingreso key/s existente/s, y alguna de ellas no existe, simplemente retornara
+        it "Si ingreso key/s existente/s, y alguna de ellas no existe, simplmente retornara
         los valores de las que si existan" do
             
             mem = Cache.new()
@@ -80,8 +80,8 @@ describe Cache do
             mem.comandoSet(auxArr2[0], data2)
 
             llaves = ["mykey1", "mykey2", "mykey3"]
-            retornara = ["VALUE mykey1 0 50 1\r\n Hola, testeando.", "VALUE mykey2 0 50 2\r\n Hola, testing."]
-            ret = mem.comandoGets(llaves)
+            retornara = ["VALUE mykey1 0 50\r\n Hola, testeando.", "VALUE mykey2 0 50\r\n Hola, testing."]
+            ret = mem.comandoGet(llaves)
             expect(ret).to eq retornara
 
         end

@@ -27,6 +27,7 @@ class Server
                 puts(s, " se va!")
                 s.close
             end
+        
         end
         
     end

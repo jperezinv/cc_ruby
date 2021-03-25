@@ -1,5 +1,5 @@
-require_relative 'MenuCache'
-require_relative 'MData'
+require_relative '../lib/MenuCache'
+require_relative '../lib/MData'
 
 describe Cache do
     

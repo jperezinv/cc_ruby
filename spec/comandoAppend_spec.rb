@@ -1,5 +1,6 @@
-require_relative 'Cache'
-require_relative 'MData'
+require_relative '../lib/Cache.rb'
+require_relative '../lib/MData.rb'
+
 
 describe Cache do
     context "en comandoAppend" do
