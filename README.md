@@ -82,20 +82,20 @@ To run this, simply select option 2 on the menu: "2 -> Correr version DEMO con c
 DISCLAIMER: you **MUST** install the Rspec gem to run this tests.
 
 Rspec was the only ruby gem used in this project. The specs included in this version tests the multiple memcached emulator commands, as well as some auxiliary functions.
-To run the specs, open the terminal and navigate to the folder containg the downloaded project folder using the cd command (most likely will be in Downloads or similar). 
+To run the specs, open the terminal and navigate inside the folder of the downloaded project using the cd command (most likely will be in Downloads or similar). 
 
 Once there, just type this command: 
 
 ```
-rbspec name_of_project_folder 
+rbspec spec
 
 ```
-That command will run all the files that end with _spec.rb in that folder.
+That command will run all the files that end with _spec.rb in 'spec' folder.
 
-If you wish to run a specific spec, simply navigate inside the download project folder and type this command: 
+If you wish to run a specific spec, simply navigate inside the spec folder and type this command: 
 
 ```
-rspec name_of_the_file.rb
+rspec name_of_the_spec.rb
 
 ```
 That command will run the specified spec.
