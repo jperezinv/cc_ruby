@@ -7,6 +7,7 @@ class Cache
   def initialize(maxTamanio = 5, tokenCas = 1)
     @datos = {} #el ultimo sera el primero en el LRU
     @maxTamanio = maxTamanio
+    @mutex = Mutex.new()
   end
 
   #FUNCIONES AUXILIARES
@@ -68,8 +69,15 @@ class Cache
     end
     
     return false
-  
 
+  end
+
+  def keyExpirada(llave)
+    if @datos.key?(llave)
+      if @datos[llave].exp_time != 0 && Time.now >= @datos[llave].exp_time #si la llave es distinta de 0 y el tiempo expiró, entonces borro la key del hash.
+        @datos.delete(llave)
+      end
+    end
   end
   
 
@@ -77,19 +85,20 @@ class Cache
 
   def comandoGet(llaves) #recibe una/s key/s y devuelve el/los valor/valores
     
-    controlTiempo()
+    llaves.each do |llave|
+      keyExpirada(llave)
+    end
     
     if @datos.empty?
       return "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
     end
     
-    data = []
-    cont = 0
-    
     llaves.each do |llave|
       if @datos.key?(llave)
-        borrado = @datos.delete(llave) #borro y obtengo el valor borrado
-        @datos[llave] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
+        @mutex.synchronize do
+          borrado = @datos.delete(llave) #borro y obtengo el valor borrado
+          @datos[llave] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
+        end
         data[cont] = "VALUE #{llave} #{@datos[llave].flag} #{@datos[llave].bytes}\r\n #{@datos[llave].chunk}"  #despues guardo el par key-valor en el array que retornaré al final 
         cont += 1
       end  
@@ -103,36 +112,41 @@ class Cache
   end
 
   def comandoSet(llave, data) #recibe una key y una instancia de 'MData', que guardara en el hash.
-    @datos.delete(llave) #borro lo que este con esa llave
-    @datos[llave] = data #e inserto al final
-
-    if @datos.length > maxTamanio
-      @datos.delete(@datos.keys[0]) #si el tamaño es mayor al maxTamanio, borro el primer elemento del hash (el de menos relevancia)
-    end
     
+    @mutex.synchronize do
+      @datos.delete(llave) #borro lo que este con esa llave
+      @datos[llave] = data #e inserto al final
+
+      if @datos.length > maxTamanio
+        @datos.delete(@datos.keys[0]) #si el tamaño es mayor al maxTamanio, borro el primer elemento del hash (el de menos relevancia)
+      end
+    end
     return ("STORED") #output será STORED
   
   end
 
   def comandoAdd (llave, valores) #recibe una key y si no existe, la agrega, sino devuelve el valor de la key existente.
 
-    controlTiempo()
+    keyExpirada(llave)
 
     if @datos.key?(llave)
       return "NOT_STORED" 
     end
     mData = MData.new(valores)
     comandoSet(llave,mData)
+  
   end
 
   def comandoReplace(llave, valores) #recibe una key y reemplaza su chunk y los bytes del mismo
     
-    controlTiempo()
+    keyExpirada(llave)
     
     if @datos.key?(llave)
-      @datos[llave].bytes = valores[3]
-      @datos[llave].chunk = valores[4]
-      @datos[llave].valorCas += 1
+      @mutex.synchronize do
+        @datos[llave].bytes = valores[3]
+        @datos[llave].chunk = valores[4]
+        @datos[llave].valorCas += 1  
+      end
       return "STORED"
     else 
       return "NOT_STORED"
@@ -143,15 +157,17 @@ class Cache
   #se hace un checkeo del largo de texto y bytes con el comando bytes check
   def comandoAppend(llave, valores) 
     
-    controlTiempo()
+    keyExpirada(llave)
 
     if @datos.key?(llave) 
       aux = bytesCheck(llave, valores[4])
       if (aux == nil)
         return "ERROR"
+      end
+      @mutex.synchronize do
+        @datos[llave].chunk = @datos[llave].chunk+valores[4]
+        @datos[llave].valorCas += 1
       end    
-      @datos[llave].chunk = @datos[llave].chunk+valores[4]
-      @datos[llave].valorCas += 1
       return "STORED"
     else
       return "NOT_STORED"
@@ -161,15 +177,17 @@ class Cache
   #lo mismo que append pero el texto se coloca antes del chunk.
   def comandoPrepend(llave, valores)
 
-    controlTiempo()
+    keyExpirada(llave)
 
     if @datos.key?(llave) 
       aux = bytesCheck(llave, valores[4])
       if (aux == nil)
         return "ERROR"        
+      end
+      @mutex.synchronize do
+        @datos[llave].chunk = valores[4]+@datos[llave].chunk
+        @datos[llave].valorCas += 1
       end    
-      @datos[llave].chunk = valores[4]+@datos[llave].chunk
-      @datos[llave].valorCas += 1
       return "STORED"
     else
       return "NOT_STORED"
@@ -179,7 +197,9 @@ class Cache
 
   def comandoGets(llaves) #recibe una/s key/s y devuelve su valor junto con el valor del token cas asociado a cada key
     
-    controlTiempo()
+    llaves.each do |llave|
+      keyExpirada(llave)
+    end
     
     if @datos.empty?
       return "AUN NO HAY KEYS GUARDADAS EN MEMORIA."
@@ -191,8 +211,10 @@ class Cache
     if llaves.length > 0
       llaves.each do |llave|
         if @datos.key?(llave)
-          borrado = @datos.delete(llave) #borro y obtengo el valor borrado
-          @datos[llave] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
+          @mutex.synchronize do
+            borrado = @datos.delete(llave) #borro y obtengo el valor borrado
+            @datos[llave] = borrado #lo vuelvo a insertar con esa misma llave, ya que se accedió recientemente.
+          end
           data[cont] = "VALUE #{llave} #{@datos[llave].flag} #{@datos[llave].bytes} #{@datos[llave].valorCas}\r\n #{@datos[llave].chunk}" 
           cont += 1
         end    
@@ -207,7 +229,7 @@ class Cache
 
   def comandoCas(llave, valores) #funciona como un set, pero solo si el usuario ingresa el token cas correspondiente a la key que quiere re-setear.
     
-    controlTiempo()
+    keyExpirada(llave)
     
     if (@datos.key?(llave))
       if (@datos[llave].valorCas == valores[4].to_i) #si el valor cas coincide,

@@ -17,7 +17,7 @@ class Demo
             "set llave3 2 0 100", "Soy la llave 3 y", "replace llave2 3 0 30", "Me reemplazaron el texto", "append llave3 2 0 50", " me appendiaron este texto al final.",
             "prepend llave3 2 0 28", "(y este texto adelante) ","get llave3", "get llave1 llave2 llave3", "gets llave2", "cas llave2 3 0 40 2", "Ahora me reemplazaron con CAS", "get llave2", "quit"]
        
-        @cont = 0
+        cont = 0
         salir = false
         
         while !salir
@@ -29,9 +29,9 @@ class Demo
                 end
             end
             
-            s.puts("COMANDO INGRESADO: #{casosPrueba[@cont]}") #mostrara el comando ingresado al usuario.
-            comandos = cache.stringToArray(casosPrueba[@cont])
-            @cont += 1 #contador que va avanzando por el array con todos los casos de prueba.
+            s.puts("COMANDO INGRESADO: #{casosPrueba[cont]}") #mostrara el comando ingresado al usuario.
+            comandos = cache.stringToArray(casosPrueba[cont])
+            cont += 1 #contador que va avanzando por el array con todos los casos de prueba.
             
             if(comandos[0] == "quit")
                 salir = true
@@ -41,7 +41,8 @@ class Demo
             case comandos[0]
                 
                 when "set"
-                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache)
+                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache, cont)
+                    cont += 1
                     if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
@@ -52,7 +53,8 @@ class Demo
                         s.puts("\n\n")
                     end
                 when "add"
-                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache)
+                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache, cont)
+                    cont += 1
                     if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
@@ -62,7 +64,8 @@ class Demo
                         s.puts("\n\n") 
                     end
                 when "replace"
-                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache)
+                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache, cont)
+                    cont += 1
                     if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
@@ -72,7 +75,8 @@ class Demo
                         s.puts("\n\n") 
                     end
                 when "append"
-                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache)
+                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache, cont)
+                    cont += 1
                     if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
@@ -82,7 +86,8 @@ class Demo
                         s.puts("\n\n") 
                     end
                 when "prepend"
-                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache)
+                    auxInfo = bloqueCheck(s, casosPrueba, comandos, cache, cont)
+                    cont += 1
                     if (auxInfo == 'ERROR')
                         s.puts "ERROR"
                         next
@@ -125,10 +130,9 @@ class Demo
         s.gets.chomp
     end
 
-    def self.bloqueCheck(s, casosPrueba, comandos, cache)
-        s.print("CHUNK INGRESADO: #{casosPrueba[@cont]}\n\n")
-        chunk = casosPrueba[@cont]
-        @cont += 1
+    def self.bloqueCheck(s, casosPrueba, comandos, cache, cont)
+        s.print("CHUNK INGRESADO: #{casosPrueba[cont]}\n\n")
+        chunk = casosPrueba[cont]
         if(comandos.length != 5)
             return "ERROR"
         end

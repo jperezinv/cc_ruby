@@ -5,6 +5,7 @@ require_relative 'MData'
 class MenuCache
         
     def self.menu(cache, s) #recibe cache y cliente.
+        
         s.puts("Bievenido al MEMCACHED EMULATOR. Ingrese una linea de comando para comenzar:")
         s.puts("(Ingrese 'quit' para volver al menú principal)\n\n")
         salir = false

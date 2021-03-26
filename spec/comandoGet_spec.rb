@@ -7,7 +7,7 @@ describe Cache do
     context "en comandoGet" do
         
         it "Key existente, devolverá un array conteniendo un string 
-        los datos, precedido por 'VALUE'" do
+        los datos, precedido por 'VALUE' finalizado en 'END'" do
             
             mem = Cache.new()
             auxArr = ["mykey","0","0","50","Hola, testeando."]
@@ -21,7 +21,7 @@ describe Cache do
         end
 
         it "Keys existentes, devolvera un array conteniendo strings
-        con los datos, precedidos por 'VALUE'" do
+        con los datos, precedidos por 'VALUE' y finalizado en 'END'" do
             
             mem = Cache.new()
             auxArr1 = ["mykey1","0","0","50","Hola, testeando."]
@@ -43,7 +43,7 @@ describe Cache do
 
         end
 
-        it "Key no existente, devolvera 'NOT STORED'" do
+        it "Key no existente, devolvera un array vacio finalizado en 'END'" do
             
             mem = Cache.new()
             auxArr1 = ["mykey1","0","0","50","Hola, testeando."]
@@ -68,7 +68,7 @@ describe Cache do
         end
 
         it "Si ingreso key/s existente/s, y alguna de ellas no existe, simplmente retornara
-        los valores de las que si existan" do
+        los valores de las que si existan en un array finalizado en 'END'" do
             
             mem = Cache.new()
             auxArr1 = ["mykey1","0","0","50","Hola, testeando."]

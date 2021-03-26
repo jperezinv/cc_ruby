@@ -13,7 +13,7 @@ describe Cache do
         
         end
 
-        it "Key ya existente, no agregara y devolvera mismo protocolo de comando get (VALUE y valores)" do
+        it "Key ya existente, no agregara y devolvera NOT_STORED" do
             
             mem = Cache.new()
             auxArr = ["mykey","0","0","50","Hola, testeando."]

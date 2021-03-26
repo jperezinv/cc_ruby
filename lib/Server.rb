@@ -1,4 +1,5 @@
 require 'socket'
+require 'thread'
 require_relative 'Cache'
 require_relative 'MenuCache'
 require_relative 'MData'
@@ -19,6 +20,7 @@ class Server
     end
 
     def correrServidor
+                
         loop do # el servidor esta ejecutandose permanentemente, aceptando multiples conexiones
     
             Thread.start(@socket.accept()) do |s|    
